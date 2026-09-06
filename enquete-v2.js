@@ -4,14 +4,22 @@
 (function initEnqueteV2() {
     'use strict';
 
-    let wakeLock = null;
-
-    function getScreen() {
+    function getTimerScreen() {
         return document.getElementById('screen-timer');
     }
 
+    function getRoleScreen() {
+        return document.getElementById('screen-game');
+    }
+
+    function isVisible(element) {
+        if (!element) return false;
+        const style = getComputedStyle(element);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+    }
+
     function syncAmbientState() {
-        const screen = getScreen();
+        const screen = getTimerScreen();
         if (!screen || !document.body) return;
 
         screen.classList.toggle('is-midpoint', document.body.classList.contains('ambient-midpoint'));
@@ -20,8 +28,14 @@
         screen.classList.toggle('is-paused', document.body.classList.contains('ambient-paused'));
     }
 
+    function syncLayoutState() {
+        if (!document.body) return;
+        document.body.classList.toggle('enquete-v2-active', isVisible(getTimerScreen()));
+        document.body.classList.toggle('role-v2-active', isVisible(getRoleScreen()));
+    }
+
     function upgradeFoundButton() {
-        const screen = getScreen();
+        const screen = getTimerScreen();
         if (!screen) return;
 
         const button = Array.from(screen.querySelectorAll('button.primary'))
@@ -34,54 +48,25 @@
         button.setAttribute('title', 'À utiliser uniquement quand le maître vient de répondre oui');
     }
 
-    function isTimerScreenVisible() {
-        const screen = getScreen();
-        if (!screen) return false;
-        const style = getComputedStyle(screen);
-        return style.display !== 'none' && style.visibility !== 'hidden';
-    }
-
-    async function acquireWakeLock() {
-        if (!('wakeLock' in navigator) || wakeLock || !isTimerScreenVisible()) return;
-        try {
-            wakeLock = await navigator.wakeLock.request('screen');
-            wakeLock.addEventListener('release', () => { wakeLock = null; });
-        } catch (_) {
-            // Certains navigateurs ou modes économie d'énergie peuvent le refuser.
-        }
-    }
-
-    async function releaseWakeLock() {
-        if (!wakeLock) return;
-        try { await wakeLock.release(); } catch (_) {}
-        wakeLock = null;
-    }
-
-    function syncWakeLock() {
-        if (isTimerScreenVisible()) acquireWakeLock();
-        else releaseWakeLock();
+    function observeScreen(element) {
+        if (!element) return;
+        const observer = new MutationObserver(() => {
+            syncLayoutState();
+            syncAmbientState();
+        });
+        observer.observe(element, { attributes: true, attributeFilter: ['class', 'style'] });
     }
 
     function boot() {
         upgradeFoundButton();
         syncAmbientState();
-        syncWakeLock();
+        syncLayoutState();
 
-        const bodyObserver = new MutationObserver(() => {
-            syncAmbientState();
-            syncWakeLock();
-        });
+        const bodyObserver = new MutationObserver(syncAmbientState);
         bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-        const screen = getScreen();
-        if (screen) {
-            const screenObserver = new MutationObserver(syncWakeLock);
-            screenObserver.observe(screen, { attributes: true, attributeFilter: ['class', 'style'] });
-        }
-
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') syncWakeLock();
-        });
+        observeScreen(getTimerScreen());
+        observeScreen(getRoleScreen());
     }
 
     if (document.readyState === 'loading') {
