@@ -1,0 +1,42 @@
+name: Publish PR4 preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/publish-pr4-preview.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fetch PR branch
+        run: git fetch origin feature/enquete-v2:refs/remotes/origin/feature/enquete-v2
+
+      - name: Build preview folder from PR #4 branch
+        run: |
+          set -e
+          rm -rf previews/pr-4
+          mkdir -p previews/pr-4
+          for f in index.html style.css script.js branding.js enquete-v2.css enquete-v2.js; do
+            git show origin/feature/enquete-v2:$f > previews/pr-4/$f
+          done
+          touch .nojekyll
+
+      - name: Commit preview and remove one-shot workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add previews/pr-4 .nojekyll
+          git rm .github/workflows/publish-pr4-preview.yml
+          git commit -m "chore: publish PR #4 GitHub Pages preview"
+          git push origin main
