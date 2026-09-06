@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Split</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <div id="ux-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+<div class="app-background" id="app-background" aria-hidden="true">
+    <div class="ambient-depth"></div>
+    <div class="ambient-light ambient-light-a"></div>
+    <div class="ambient-light ambient-light-b"></div>
+    <div class="ambient-orbits"></div>
+    <div class="ambient-wave" id="ambient-wave"></div>
+    <div class="ambient-shutter ambient-shutter-top"></div>
+    <div class="ambient-shutter ambient-shutter-bottom"></div>
+    <div class="ambient-vignette"></div>
+</div>
+<div class="cinema-grain" aria-hidden="true"></div>
+<div class="cinematic-flash" id="cinematic-flash" aria-hidden="true"></div>
+<div class="narrative-overlay" id="narrative-overlay" aria-hidden="true">
+    <div class="narrative-vignette"></div>
+    <div class="narrative-pulse" aria-hidden="true"></div>
+    <div class="narrative-card-deck" aria-hidden="true">
+        <div class="narrative-shuffle-energy">
+            <b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b>
+        </div>
+        <i class="narrative-card"><span>👁️</span></i>
+        <i class="narrative-card"><span>👁️</span></i>
+        <i class="narrative-card"><span>👁️</span></i>
+        <i class="narrative-card"><span>👁️</span></i>
+        <i class="narrative-card"><span>👁️</span></i>
+        <i class="narrative-card"><span>👁️</span></i>
+        <i class="narrative-card"><span>👁️</span></i>
+    </div>
+    <div class="narrative-copy">
+        <span class="narrative-kicker" id="narrative-kicker"></span>
+        <strong class="narrative-title" id="narrative-title"></strong>
+        <span class="narrative-subtitle" id="narrative-subtitle"></span>
+    </div>
+</div>
+
+<div class="box">
+    <!-- ACCUEIL -->
+    <div id="screen-home" class="screen" style="display: block;">
+        <header class="home-identity">
+            <button class="btn-fullscreen" aria-label="Activer le plein écran" title="Plein écran" onclick="toggleFullscreen(); playSound('click'); playHaptic('tap');">⛶</button>
+            <div class="home-brand">
+                <div class="brand-sigil" aria-hidden="true">
+                    <i class="brand-sigil-ring ring-one"></i>
+                    <i class="brand-sigil-ring ring-two"></i>
+                    <span class="brand-eye">👁️</span>
+                </div>
+                <div class="brand-line">
+                    <h1 data-title="TRICHEUR" aria-label="TRICHEUR">TRICHEUR</h1>
+                </div>
+                <p class="brand-subtitle">Bluff <span>•</span> Analyse <span>•</span> Trahison</p>
+            </div>
+        </header>
+
+        <section class="home-setup-panel" aria-labelledby="game-mode-title">
+            <div class="game-mode-heading">
+                <span id="game-mode-title">CHOISISSEZ VOTRE MODE</span>
+                <small id="game-mode-summary" class="sr-only">Le jeu original, direct et équilibré.</small>
+            </div>
+            <div class="game-mode-selector" role="group" aria-labelledby="game-mode-title">
+                <div class="game-mode-grid">
+                    <button class="game-mode-option is-selected" id="mode-classic" type="button" aria-pressed="true" onclick="setGameMode('classic')">
+                        <span class="game-mode-icon" aria-hidden="true">◎</span>
+                        <strong>CLASSIQUE</strong>
+                    </button>
+                    <button class="game-mode-option mode-characters" id="mode-characters" type="button" aria-pressed="false" onclick="setGameMode('characters')">
+                        <span class="game-mode-icon" aria-hidden="true">★</span>
+                        <strong>PERSONNAGES</strong>
+                    </button>
+                    <button class="game-mode-option mode-black" id="mode-black" type="button" aria-pressed="false" onclick="setGameMode('black')">
+                        <span class="game-mode-icon" aria-hidden="true">◆</span>
+                        <strong>BLACK</strong>
+                    </button>
+                </div>
+                <input type="checkbox" id="mode-toggle" hidden aria-hidden="true" tabindex="-1">
+            </div>
+            <div class="home-panel-divider" aria-hidden="true"></div>
+            <div class="home-settings-grid">
+                <div class="home-setting-card">
+                    <span class="home-setting-label"><span class="setting-icon">👥</span> Joueurs</span>
+                    <div class="selector-container">
+                        <button class="btn-circle" aria-label="Retirer un joueur" onclick="changePlayers(-1); playSound('click'); playHaptic('tap');">−</button>
+                        <span id="player-count" class="selector-value">6</span>
+                        <button class="btn-circle" aria-label="Ajouter un joueur" onclick="changePlayers(1); playSound('click'); playHaptic('tap');">+</button>
+                    </div>
+                </div>
+                <div class="home-setting-card">
+                    <span class="home-setting-label"><span class="setting-icon">⏱️</span> Enquête</span>
+                    <div class="selector-container">
+                        <button class="btn-circle" aria-label="Réduire le temps" onclick="changeDuration(-1); playSound('click'); playHaptic('tap');">−</button>
+                        <span id="duration-display" class="selector-value">5 min</span>
+                        <button class="btn-circle" aria-label="Augmenter le temps" onclick="changeDuration(1); playSound('click'); playHaptic('tap');">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="home-composition-panel">
+                <div id="game-composition" class="role-composition" aria-label="Composition de la partie"></div>
+            </div>
+        </section>
+        
+        <!-- RECUPERER UNE PARTIE SAUVEGARDEE -->
+        <div class="saved-game-panel" id="saved-game-panel" style="display:none;">
+            <span class="saved-game-summary" id="saved-game-summary">Partie sauvegardée</span>
+            <button class="primary" id="btn-resume-game" onclick="resumeSavedGame(); playSound('ui'); playHaptic('decision');">REPRENDRE LA PARTIE →</button>
+        </div>
+        
+        <button class="primary" id="btn-start-fresh" onclick="goToNamesScreen()">COMMENCER EN CLASSIQUE →</button>
+    </div>
+
+    <!-- PRÉNOMS -->
+    <div id="screen-names" class="screen">
+        <div class="name-screen-header">
+            <div class="phase-kicker"><span>01</span></div>
+            <h2>À QUI LE TOUR ?</h2>
+            <p id="name-player-progress">Joueur 1 sur 6</p>
+            <div class="journey-progress" id="name-journey-progress" role="progressbar" aria-label="Progression de la distribution" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1">
+                <div id="name-progress-fill" class="journey-progress-fill"></div>
+            </div>
+        </div>
+        <div class="name-entry-panel">
+            <div class="name-input-wrapper">
+                <input type="text" class="name-input" id="current-player-name" maxlength="40" autocomplete="off" autocapitalize="characters" enterkeyhint="go" spellcheck="false" placeholder="ÉCRIS TON PRÉNOM" aria-describedby="name-helper" oninput="updateNameEntryState()" required>
+                <span class="name-ready-mark" aria-hidden="true">✓</span>
+            </div>
+            <p class="name-helper" id="name-helper">Entre ton prénom pour découvrir ton rôle.</p>
+            <button class="primary" id="btn-show-role" type="button" onclick="startGame()" disabled>VOIR MON RÔLE</button>
+        </div>
+        <button class="secondary name-back-button" onclick="showScreen('screen-home'); playSound('click');">RETOUR</button>
+    </div>
+
+    <!-- JEU / CARTES -->
+    <div id="screen-game" class="screen">
+        <div class="phase-kicker"><span>01</span></div>
+        <h2 id="player-label" style="color: var(--color-tricheur); font-weight: 900; margin:0;">JOUEUR</h2>
+        <div class="role-status-line">
+            <p id="flip-instruction" aria-hidden="true"></p>
+            <p id="role-reveal-label" aria-hidden="true">Votre rôle :</p>
+        </div>
+        <button class="flip-container" id="btn-reveal-card" type="button" aria-label="Révéler votre rôle secret" aria-expanded="false" onclick="toggleCardFlip()">
+            <div class="flipper" id="card-flipper">
+                <div class="front">
+                    <div class="secret-card-emblem" aria-hidden="true"><span>👁️</span></div>
+                </div>
+                <div class="back" id="role-card-back">
+                    <div class="holo-role-symbol" aria-hidden="true"><span id="role-holo-symbol"></span></div>
+                    <span id="role-text" class="role-name">Enquêteur</span>
+                    <div id="word-text" class="word-box" data-label="MOT À TROUVER">???</div>
+                    <div class="mission-label">Mission</div>
+                    <div id="extra-info" style="font-size: 0.75rem; margin-top: 10px; font-weight: bold; color: yellow;"></div>
+                </div>
+            </div>
+        </button>
+        <button class="primary" id="btn-next-player" onclick="nextPlayer()" disabled>JOUEUR SUIVANT →</button>
+    </div>
+
+    <!-- MINUTEUR -->
+    <div id="screen-timer" class="screen">
+        <div class="phase-kicker"><span>02</span></div>
+        <h2 style="margin: 0; font-size: 1.2rem; letter-spacing:1px;">ENQUÊTE</h2>
+        <div id="black-constraint" class="constraint-box" style="display:none"><div id="constraint-text" style="font-size: 0.9rem; font-weight: 600;"></div></div>
+        <button class="timer-display timer-button" id="timer-text" type="button" onclick="toggleTimer()" aria-label="Mettre le minuteur en pause" aria-pressed="true">
+            <span class="timer-value">05:00</span>
+            <span class="timer-pause-label" aria-hidden="true">PAUSE</span>
+            <span class="timer-pause-hint" aria-hidden="true"></span>
+        </button>
+        <div class="timer-progress" aria-hidden="true"><div class="timer-progress-fill" id="discussion-progress-fill"></div></div>
+        <p class="timer-state discussion-instruction" id="discussion-timer-state">
+            <span>Trouvez le mot.</span>
+            <strong>Observez qui semble déjà le connaître.</strong>
+        </p>
+        <button class="secondary" onclick="openPeekModal(); playSound('click');" style="background: rgba(255,255,255,0.05); color: #86868b; margin-top: 15px;">🔎 REVOIR MON RÔLE</button>
+        <button class="primary" onclick="goToVote();">PASSER AU JUGEMENT</button>
+    </div>
+
+    <!-- VOTE -->
+    <div id="screen-vote" class="screen">
+        <div class="phase-kicker"><span>04</span></div>
+        <h2 style="color: var(--color-tricheur); font-weight: 900; margin:0;">JUGEMENT</h2>
+        <button class="timer-display timer-button" id="vote-timer-text" type="button" onclick="toggleVoteTimer()" aria-label="Mettre le minuteur du jugement en pause" aria-pressed="true" style="color: white; font-size: 3rem;">
+            <span class="timer-value">03:00</span>
+            <span class="timer-pause-label" aria-hidden="true">PAUSE</span>
+            <span class="timer-pause-hint" aria-hidden="true"></span>
+        </button>
+        <div class="timer-progress" aria-hidden="true"><div class="timer-progress-fill" id="vote-progress-fill"></div></div>
+        <p class="timer-state judgment-timer-state" id="vote-timer-state" aria-live="polite">Jugement en cours</p>
+        <div id="accusation-container" class="accusation-panel">
+            <span style="font-size:.72rem;color:#ff8a80;font-weight:850;text-transform:uppercase;letter-spacing:1px;">Verdict</span>
+            <div id="accusation-question" class="accusation-name">EST-CE LE TRICHEUR ?</div>
+            <div class="decision-grid">
+                <button id="btn-accuse-finder" class="btn-accuse" onclick="decideFinderAccusation('accused')">🔫 OUI, JE L’ACCUSE</button>
+                <button id="btn-trust-finder" class="btn-trust" onclick="decideFinderAccusation('trusted')">🤝 NON, J’AI CONFIANCE</button>
+            </div>
+        </div>
+        <button class="primary" id="btn-reveal-result" onclick="continueAfterFinderDecision()" disabled>CHOISISSEZ VOTRE VERDICT</button>
+    </div>
+
+    <!-- DÉCISION D'ÉLIMINATION -->
+    <div id="screen-elimination" class="screen">
+        <div id="elimination-choice-phase" class="elimination-arena">
+            <h2 class="elimination-title">VOTE D’ÉLIMINATION</h2>
+            <div id="elimination-clock-anchor" class="elimination-clock-anchor">
+                <button id="elimination-clock" class="elimination-clock timer-display timer-button" type="button" onclick="toggleEliminationTimer()" aria-label="Mettre le minuteur du vote d’élimination en pause" aria-pressed="true">
+                    <span class="timer-value">02:00</span>
+                    <span class="timer-pause-label" aria-hidden="true">PAUSE</span>
+                    <span class="timer-pause-hint" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="tension-track"><div id="elimination-tension-fill" class="tension-fill"></div></div>
+            <div class="tiles-grid" id="eliminated-tiles-container"></div>
+            <button class="primary" id="btn-confirm-elimination" onclick="openEliminationConfirmation()" disabled>CHOISISSEZ UN JOUEUR</button>
+        </div>
+        <div id="elimination-confirm-phase" class="elimination-confirm" style="display:none;">
+            <div class="elimination-kicker">Dernière chance</div>
+            <h2 style="margin:8px 0;">ÊTES-VOUS CERTAINS ?</h2>
+            <p style="color:#d1d1d6;font-size:.88rem;">Cette décision est définitive.</p>
+            <div id="elimination-confirm-name" class="elimination-target">JOUEUR</div>
+            <button class="primary" onclick="finalizeEliminationVote()" style="background:var(--color-tricheur);">CONFIRMER L'ÉLIMINATION</button>
+            <button class="secondary" onclick="cancelEliminationConfirmation()">CHANGER DE NOM</button>
+        </div>
+    </div>
+
+    <!-- TABLEAU SCORES / RÉSULTATS -->
+    <div id="screen-recap" class="screen">
+        <div id="results-input-phase">
+            <div class="phase-kicker"><span>03</span></div>
+            <h2 style="font-weight:900; margin:0 0 4px;">QUI A TROUVÉ LE MOT EN PREMIER ?</h2>
+
+            <div class="winner-selector">
+                <div class="tiles-grid" id="finder-tiles-container"></div>
+            </div>
+            <button class="primary" id="btn-confirm-finder" onclick="confirmFinderSelection()" disabled>CHOISISSEZ UN JOUEUR</button>
+        </div>
+
+        <div id="results-reveal-phase" style="display:none;">
+            <div id="result-hero" class="result-hero">
+                <div id="result-icon" class="result-icon">🎯</div>
+                <div id="result-title" class="result-title">RÉSULTAT</div>
+                <div id="result-winners" class="result-winners" aria-live="polite"></div>
+                <div id="result-subtitle" class="result-subtitle"></div>
+                <div id="result-word" class="result-word"></div>
+            </div>
+            <div id="result-podium-panel" class="result-podium-panel">
+                <div class="result-podium-title"><span>Podium</span></div>
+                <div id="result-podium" class="result-podium"></div>
+            </div>
+            <button class="secondary result-ranking-toggle" id="btn-open-full-ranking" type="button" onclick="openFullRanking()">CLASSEMENT</button>
+            <div class="result-sticky-actions">
+                <button class="primary" id="btn-next-round" onclick="applyScoresAndRestart()">MANCHE SUIVANTE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VICTOIRE FINALE -->
+    <div id="screen-champion" class="screen">
+        <div class="champion-stage">
+            <div class="champion-rays" aria-hidden="true"></div>
+            <div class="phase-kicker champion-kicker"><span>FIN</span> Partie terminée</div>
+            <div class="champion-crown" aria-hidden="true">♛</div>
+            <p class="champion-eyebrow">LE GRAND VAINQUEUR</p>
+            <h2 class="champion-name" id="champion-name">JOUEUR</h2>
+            <p class="champion-role" id="champion-role">RÔLE</p>
+            <div class="champion-score" id="champion-score">10 <small>POINTS</small></div>
+            <div class="champion-ranking" id="champion-ranking"></div>
+            <button class="primary champion-replay" type="button" onclick="replayWithSamePlayers()">REJOUER AVEC LES MÊMES JOUEURS</button>
+            <button class="secondary" type="button" onclick="resetEntireGame(); playSound('click');">NOUVELLE PARTIE</button>
+        </div>
+    </div>
+</div>
+
+<div id="full-ranking-modal" class="ranking-sheet" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="full-ranking-title">
+    <div class="ranking-sheet-backdrop" aria-hidden="true" onclick="closeFullRanking()"></div>
+    <div class="ranking-sheet-panel">
+        <div class="ranking-sheet-header">
+            <div>
+                <span class="ranking-sheet-kicker">SCORES DE LA PARTIE</span>
+                <h2 id="full-ranking-title">CLASSEMENT COMPLET</h2>
+            </div>
+            <button class="ranking-sheet-close" id="btn-close-full-ranking" type="button" onclick="closeFullRanking()" aria-label="Fermer le classement">✕</button>
+        </div>
+        <div id="round-gains-list" class="round-gains-list full-ranking-list"></div>
+        <button class="primary ranking-sheet-done" type="button" onclick="closeFullRanking()">RETOUR AU RÉSULTAT</button>
+    </div>
+</div>
+
+<div class="quick-menu-shell" id="quick-menu-shell">
+    <button class="quick-menu-toggle" id="btn-quick-menu" type="button" onclick="toggleQuickMenu()" aria-label="Ouvrir le menu et les règles" aria-expanded="false" aria-controls="quick-menu">☰</button>
+    <section class="quick-menu" id="quick-menu" role="dialog" aria-modal="false" aria-labelledby="quick-menu-title" aria-hidden="true" hidden>
+        <div class="quick-menu-header">
+            <h2 class="quick-menu-title" id="quick-menu-title">Règles express</h2>
+            <button class="quick-menu-close" id="btn-close-quick-menu" type="button" onclick="closeQuickMenu()" aria-label="Fermer le menu">✕</button>
+        </div>
+        <ol class="quick-rules">
+            <li class="quick-rule"><span><strong>Le Maître</strong> connaît le mot et répond aux questions.</span></li>
+            <li class="quick-rule"><span>Les <strong>Enquêteurs</strong> trouvent le mot et cherchent le Tricheur.</span></li>
+            <li class="quick-rule"><span>Le <strong>Tricheur</strong> connaît le mot, reste crédible et évite les soupçons.</span></li>
+            <li class="quick-rule"><span>Jugez le premier à trouver. S’il est innocent, procédez au vote d’élimination.</span></li>
+            <li class="quick-rule"><span>Le premier joueur à <strong>10 points</strong> remporte la partie.</span></li>
+        </ol>
+        <p class="quick-black-note"><strong>Black Edition :</strong> un Complice connaît le Tricheur et tente de le protéger.</p>
+        <button class="menu-sound-button" id="btn-sound-toggle" type="button" onclick="toggleSound(); playHaptic('tap');" aria-label="Couper le son" aria-pressed="true">
+            <span class="menu-sound-icon" aria-hidden="true">🔊</span><span>Son activé</span>
+        </button>
+        <div class="quick-menu-actions" aria-label="Actions de la partie">
+            <button class="quick-action-button" type="button" onclick="toggleFullscreen(); playSound('click');">
+                <span aria-hidden="true">⛶</span><span>Plein écran</span>
+            </button>
+            <button class="quick-action-button install-action" id="btn-install-app" type="button" onclick="installTricheurApp()">
+                <span aria-hidden="true">↓</span><span>Installer l’application</span>
+            </button>
+            <button class="quick-action-button restart-action" id="btn-menu-restart" type="button" onclick="openGameActionConfirm('restart')" disabled>
+                <span aria-hidden="true">↻</span><span>Recommencer la partie</span>
+            </button>
+            <button class="quick-action-button quit-action" id="btn-menu-quit" type="button" onclick="openGameActionConfirm('quit')" disabled>
+                <span aria-hidden="true">↩</span><span>Quitter la partie</span>
+            </button>
+        </div>
+    </section>
+</div>
+
+<div id="game-action-modal" class="modal action-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="game-action-title" aria-describedby="game-action-description">
+    <div class="modal-content action-modal-content">
+        <div class="action-modal-icon" id="game-action-icon" aria-hidden="true">↻</div>
+        <h3 id="game-action-title">Recommencer la partie ?</h3>
+        <p id="game-action-description">Les scores seront remis à zéro, mais les joueurs seront conservés.</p>
+        <button class="primary" id="btn-confirm-game-action" type="button" onclick="confirmGameAction()">CONFIRMER</button>
+        <button class="secondary" id="btn-cancel-game-action" type="button" onclick="closeGameActionConfirm()">ANNULER</button>
+    </div>
+</div>
+
+<div id="install-help-modal" class="modal install-help-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="install-help-title" aria-describedby="install-help-description">
+    <div class="modal-content install-help-content">
+        <div class="action-modal-icon" aria-hidden="true">↓</div>
+        <h3 id="install-help-title">Installer Tricheur</h3>
+        <p id="install-help-description">Suis ces étapes sur ton téléphone.</p>
+        <ol id="install-help-steps" class="install-help-steps"></ol>
+        <p id="install-help-note" class="install-help-note"></p>
+        <button class="primary" id="btn-close-install-help" type="button" onclick="closeInstallHelp()">J’AI COMPRIS</button>
+    </div>
+</div>
+
+<!-- MODALE DISCRÈTE -->
+<div id="peek-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="peek-modal-title" aria-describedby="peek-modal-description">
+    <div class="modal-content">
+        <h3 id="peek-modal-title" style="margin-top:0;">Revoir son rôle</h3>
+        <p id="peek-modal-description" style="font-size: 0.85rem; color: #86868b;">Choisissez votre nom, puis maintenez le bouton pour revoir secrètement votre rôle.</p>
+        <div id="peek-player-tiles" class="tiles-grid peek-players-grid"></div>
+        
+        <button class="btn-hold" id="btn-hold-peek" disabled>CHOISIS TON NOM</button>
+        
+        <div class="peek-area" id="peek-display-area">
+            <div id="peek-role-title" style="font-weight:900; font-size:1.4rem; text-transform:uppercase;">RÔLE</div>
+            <div id="peek-word-display" class="word-box" style="margin: 10px auto; font-size:1.3rem; width:100%;">MOT</div>
+            <div id="peek-extra-info" style="font-size:0.75rem; color:yellow; font-weight:bold; margin-top:5px;"></div>
+        </div>
+        
+        <button class="secondary" onclick="closePeekModal(); playSound('click');" style="margin-top:15px; width:100%;">FERMER</button>
+    </div>
+</div>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
