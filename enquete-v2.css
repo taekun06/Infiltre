@@ -1,0 +1,361 @@
+/* INFILTRÉ — ENQUÊTE V2
+ * Couche visuelle additive : ne change aucune règle ni logique de timer.
+ */
+
+/* L'écran rôle garde sa carte, mais sans le gros cadre noir extérieur de .box. */
+body.role-v2-active .box {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    padding: 0;
+}
+
+/* En ENQUÊTE, .box ne doit plus enfermer le jeu dans une colonne de 420 px. */
+body.enquete-v2-active .box {
+    width: min(1180px, calc(100vw - 24px));
+    max-width: none;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    padding: 0;
+}
+
+#screen-timer {
+    --enquete-accent: #ff3b30;
+    --enquete-accent-soft: rgba(255, 59, 48, .22);
+    --enquete-glow: rgba(255, 59, 48, .34);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: min(88vh, 760px);
+    min-height: min(88dvh, 760px);
+    padding: clamp(18px, 3vw, 30px);
+    border-radius: 28px;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,.028), transparent 32%),
+        radial-gradient(circle at 50% 50%, rgba(255,59,48,.045), transparent 58%),
+        linear-gradient(180deg, rgba(12,12,17,.92), rgba(4,4,7,.97));
+}
+
+#screen-timer::before,
+#screen-timer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+
+#screen-timer::before {
+    background:
+        linear-gradient(90deg, transparent 0 49.8%, rgba(255,255,255,.022) 50%, transparent 50.2%),
+        linear-gradient(0deg, transparent 0 49.8%, rgba(255,255,255,.018) 50%, transparent 50.2%);
+    mask-image: radial-gradient(circle at center, #000 0 42%, transparent 72%);
+    opacity: .72;
+}
+
+#screen-timer::after {
+    inset: 14%;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.02);
+    box-shadow: 0 0 80px rgba(255,59,48,.04) inset;
+    animation: infiltreBreath 5.2s ease-in-out infinite;
+}
+
+#screen-timer .phase-kicker {
+    margin-bottom: 4px;
+    opacity: .56;
+}
+
+#screen-timer > h2 {
+    font-size: clamp(.82rem, 2vw, 1rem) !important;
+    letter-spacing: .34em !important;
+    color: #b8bac4;
+    text-transform: uppercase;
+}
+
+#screen-timer > h2::before {
+    content: "INFILTRÉ  •  ";
+    color: #fff;
+    font-weight: 900;
+}
+
+#screen-timer .timer-display {
+    width: clamp(205px, 42vmin, 300px);
+    height: clamp(205px, 42vmin, 300px);
+    min-width: 0;
+    margin: clamp(16px, 4vh, 32px) auto 20px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: visible;
+    appearance: none;
+    -webkit-appearance: none;
+    background:
+        radial-gradient(circle at 50% 44%, rgba(255,255,255,.035), transparent 42%),
+        radial-gradient(circle, rgba(255,59,48,.035), transparent 64%),
+        rgba(6,6,10,.88) !important;
+    border: 1px solid rgba(255,255,255,.09);
+    box-shadow:
+        0 0 0 8px rgba(255,255,255,.012),
+        0 0 0 9px rgba(255,255,255,.032),
+        0 22px 56px rgba(0,0,0,.42),
+        0 0 52px var(--enquete-glow);
+    transition: border-color .35s ease, box-shadow .35s ease, transform .2s ease;
+}
+
+#screen-timer .timer-display::before,
+#screen-timer .timer-display::after {
+    content: "";
+    position: absolute;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+#screen-timer .timer-display::before {
+    inset: -10px;
+    border: 2px solid rgba(255,59,48,.38);
+    border-left-color: rgba(255,59,48,.06);
+    border-bottom-color: rgba(255,59,48,.12);
+    filter: drop-shadow(0 0 9px rgba(255,59,48,.18));
+    animation: infiltreOrbit 14s linear infinite;
+}
+
+#screen-timer .timer-display::after {
+    inset: 12px;
+    border: 1px solid rgba(255,255,255,.06);
+}
+
+#screen-timer .timer-value {
+    max-width: 86%;
+    font-size: clamp(3rem, 14vmin, 5.2rem);
+    line-height: .94;
+    letter-spacing: -.045em;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: #f7f7fa;
+    text-shadow: 0 0 24px rgba(255,255,255,.06);
+}
+
+#screen-timer .timer-pause-label {
+    font-size: .68rem;
+    letter-spacing: .2em;
+}
+
+#screen-timer .timer-progress {
+    width: min(390px, 84%);
+    height: 3px;
+    margin: 0 auto 18px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.05);
+    overflow: hidden;
+}
+
+#screen-timer .timer-progress-fill {
+    background: linear-gradient(90deg, rgba(255,255,255,.5), var(--enquete-accent));
+    box-shadow: 0 0 12px var(--enquete-glow);
+}
+
+#screen-timer .discussion-instruction {
+    width: min(460px, 92%);
+    margin: 0 auto 18px;
+    color: #aeb0b9;
+    line-height: 1.45;
+    font-size: clamp(.88rem, 2.5vw, 1rem);
+}
+
+#screen-timer .discussion-instruction > span,
+#screen-timer .discussion-instruction > strong {
+    display: block;
+}
+
+#screen-timer .discussion-instruction > span {
+    color: #fff;
+    font-weight: 850;
+    font-size: 1.08em;
+    margin-bottom: 4px;
+}
+
+#screen-timer button.primary {
+    width: min(420px, 94%);
+    min-height: 60px;
+    margin-top: 8px;
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,.07), transparent),
+        linear-gradient(135deg, #ff5148, #c81717 72%);
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 14px 28px rgba(120,0,0,.2), 0 0 22px rgba(255,59,48,.1);
+    font-size: .9rem;
+    letter-spacing: .09em;
+}
+
+#screen-timer button.primary::before {
+    content: "✓  ";
+    font-weight: 950;
+}
+
+#screen-timer button.secondary {
+    opacity: .52;
+    transform: scale(.92);
+    margin-top: 0 !important;
+}
+
+#screen-timer.timer-midpoint,
+#screen-timer.is-midpoint {
+    --enquete-glow: rgba(255, 120, 72, .42);
+}
+
+#screen-timer.timer-final,
+#screen-timer.is-final {
+    --enquete-glow: rgba(255, 59, 48, .54);
+}
+
+#screen-timer.timer-critical,
+#screen-timer.is-critical {
+    --enquete-glow: rgba(255, 30, 30, .72);
+}
+
+#screen-timer.timer-critical .timer-display,
+#screen-timer.is-critical .timer-display {
+    animation: infiltreCriticalPulse .9s ease-in-out infinite;
+}
+
+@keyframes infiltreOrbit {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes infiltreBreath {
+    0%,100% { transform: scale(.98); opacity: .34; }
+    50% { transform: scale(1.02); opacity: .64; }
+}
+
+@keyframes infiltreCriticalPulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.018); }
+}
+
+/* Le téléphone posé au centre doit utiliser tout l'écran en paysage. */
+@media (orientation: landscape) {
+    body.enquete-v2-active {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    body.enquete-v2-active .box {
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        max-width: none;
+        margin: 0;
+    }
+
+    #screen-timer {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 100vh;
+        min-height: 100dvh;
+        box-sizing: border-box;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(12px, 2.5vh, 24px) clamp(24px, 5vw, 72px);
+    }
+
+    #screen-timer .phase-kicker {
+        position: absolute;
+        top: clamp(14px, 3vh, 28px);
+        left: clamp(18px, 4vw, 56px);
+    }
+
+    #screen-timer > h2 {
+        margin: 0 0 clamp(6px, 1.8vh, 14px) !important;
+    }
+
+    #screen-timer #black-constraint {
+        margin: 0 auto 6px;
+    }
+
+    #screen-timer .timer-display {
+        width: min(50vh, 286px);
+        height: min(50vh, 286px);
+        margin: 4px auto clamp(8px, 1.6vh, 14px);
+    }
+
+    #screen-timer .timer-value {
+        font-size: clamp(3rem, 10vh, 5rem);
+    }
+
+    #screen-timer .timer-progress {
+        width: min(440px, 46vw);
+        margin-bottom: clamp(8px, 1.4vh, 14px);
+    }
+
+    #screen-timer .discussion-instruction {
+        margin-bottom: clamp(6px, 1.2vh, 12px);
+        font-size: clamp(.78rem, 1.8vh, .96rem);
+    }
+
+    #screen-timer button.secondary {
+        width: min(360px, 42vw);
+        min-height: 42px;
+        margin: 0 !important;
+    }
+
+    #screen-timer button.primary {
+        width: min(440px, 48vw);
+        min-height: 54px;
+        margin-top: 6px;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+    #screen-timer {
+        justify-content: flex-start;
+        padding-top: 12px;
+        padding-bottom: 10px;
+    }
+
+    #screen-timer > h2 {
+        margin-bottom: 4px !important;
+    }
+
+    #screen-timer .timer-display {
+        width: min(42vh, 210px);
+        height: min(42vh, 210px);
+    }
+
+    #screen-timer .timer-value {
+        font-size: clamp(2.7rem, 9vh, 4.2rem);
+    }
+
+    #screen-timer .discussion-instruction {
+        margin-bottom: 4px;
+    }
+
+    #screen-timer button.secondary {
+        min-height: 38px;
+    }
+
+    #screen-timer button.primary {
+        min-height: 48px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #screen-timer::after,
+    #screen-timer .timer-display::before,
+    #screen-timer.timer-critical .timer-display,
+    #screen-timer.is-critical .timer-display {
+        animation: none !important;
+    }
+}
